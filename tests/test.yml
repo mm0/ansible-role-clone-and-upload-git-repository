@@ -1,9 +1,9 @@
 - hosts: all
   roles:
-  - { role: clone-and-upload-git-repository,
+    - { role: ansible-role-clone-and-upload-git-repository,
       git_site: github.com,
       organization: mm0,
-      repo: ansible-role-clone-and-upload-repository,
+      repo: ansible-role-clone-and-upload-git-repository,
       destination: "/var/www",
       save_old: no,
       owner: ubuntu,
