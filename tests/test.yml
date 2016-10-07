@@ -1,6 +1,6 @@
 - hosts: all
   roles:
-  - { role: repo,
+  - { role: clone-and-upload-git-repository,
       git_site: github.com,
       organization: mm0,
       repo: ansible-role-clone-and-upload-repository,
