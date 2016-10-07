@@ -1,12 +1,12 @@
 - hosts: all
-	roles:
-	- { role: repo,
-			git_site: github.com
-			organization: mm0
-			repo: ansible-role-clone-and-upload-repository
-			destination: "/var/www",
-			save_old: no,
-			owner: ubuntu,
-			group: ubuntu,
-			mode: "0755"
-		}
+  roles:
+  - { role: repo,
+      git_site: github.com,
+      organization: mm0,
+      repo: ansible-role-clone-and-upload-repository,
+      destination: "/var/www",
+      save_old: no,
+      owner: ubuntu,
+      group: ubuntu,
+      mode: "0755"
+    }
