@@ -1,0 +1,59 @@
+- name: Generate Random Name of temp directory
+  local_action: shell mktemp -d "/tmp/clone_repo_ansible_repo.XXXXXXXXXX"
+  become: no
+  register: temp_directory_local
+
+- name: Generate Random Name of temp directory on remote
+  shell: mktemp -d "/tmp/clone_repo_ansible_repo.XXXXXXXXXX"
+  register: temp_directory_remote
+
+- name: Chmod local temp
+  become: no
+  local_action: file path={{temp_directory_local.stdout}} mode=777
+
+- name: Chmod remote temp
+  file: path={{temp_directory_remote.stdout}} mode=777
+
+- name: "Get github repo: {{ repo }}"
+  #disable become to use local user's git key
+  become: no
+  local_action: git accept_hostkey=yes dest={{ temp_directory_local.stdout }}/{{ repo }} repo=ssh://git@{{git_site }}/{{ organization }}/{{ repo }}.git version="{{ version | default('HEAD') }}"
+
+- name: Tar em  up 
+  local_action: shell tar -cvf {{temp_directory_local.stdout}}/{{ repo }}.tar -C {{temp_directory_local.stdout}}/{{ repo }}/ .
+  become: no
+
+- name: Copy github repos to remote host(s) 
+  copy: src={{temp_directory_local.stdout}}/{{ repo }}.tar dest={{temp_directory_remote.stdout}}/ 
+
+- name: Get todays date 
+  shell: date '+%F-%H:%M:%S' 
+  register: mydate
+  when: save_old
+
+- name: Check directory exists already to backup
+  stat: path={{ destination }}
+  register: directory
+  when: save_old
+
+- name: Ensure {{ destination }} directory exists
+  shell : mkdir -p {{ destination }} 
+
+- name: "Backup previous {{ repo }}"
+  shell: mv {{destination}} {{ destination }}_{{ mydate.stdout }}
+  when: save_old and directory.stat.exists
+
+- name: Untar repos on remote host 
+  unarchive: src={{temp_directory_remote.stdout}}/{{ repo }}.tar dest={{ destination }} owner={{ owner }} group={{ group }} mode={{ mode }} copy=no
+
+- name: Set permissions on repo since unarchive doesnt support this yet
+  file: dest={{ destination }} owner={{ owner }} group={{ group }} mode={{ mode }} state=directory recurse=yes
+
+- name: Cleanup 
+  file: path={{temp_directory_remote.stdout}}/{{ repo }}.tar state=absent
+
+- name: Remove temporary local direcotry with copy of repo 
+  become: no
+  local_action: file path={{temp_directory_local.stdout}} state=absent
+
+
