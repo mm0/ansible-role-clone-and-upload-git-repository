@@ -11,8 +11,7 @@ addons:
     packages:
     - python-pip
 before_install:
-  - mkdir ~/.ssh
-  - openssl aes-256-cbc -K $encrypted_dd226d06d3ab_key -iv $encrypted_dd226d06d3ab_iv -in github-ansible-repo-deploy-key.enc -out ~\/.ssh/id_rsa -d
+  - openssl aes-256-cbc -K $encrypted_dd226d06d3ab_key -iv $encrypted_dd226d06d3ab_iv -in github-ansible-repo-deploy-key.enc -out ~/.ssh/id_rsa -d
   - chmod 0600 ~/.ssh/id_rsa
 
 install:
