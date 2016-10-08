@@ -1,4 +1,7 @@
 # README.md
+
+[travis-ci](https://travis-ci.org/mm0/ansible-role-clone-and-upload-git-repository.svg?branch=master)
+
 # Ansible Role: Clone and Upload Git Repository 1.0
 
 An Ansible role that clones a git repository locally and uploads it to a target host in a compressed and secure manner.  
