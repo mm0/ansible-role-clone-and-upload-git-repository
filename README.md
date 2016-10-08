@@ -1,6 +1,6 @@
 # README.md
 
-[travis-ci](https://travis-ci.org/mm0/ansible-role-clone-and-upload-git-repository.svg?branch=master)
+![travis-ci](https://travis-ci.org/mm0/ansible-role-clone-and-upload-git-repository.svg?branch=master)
 
 # Ansible Role: Clone and Upload Git Repository 1.0
 
