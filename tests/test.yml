@@ -6,7 +6,7 @@
       repo: ansible-role-clone-and-upload-git-repository,
       destination: "/tmp/throway",
       save_old: no,
-      owner: ubuntu,
-      group: ubuntu,
+      owner: travis,
+      group: travis,
       mode: "0755"
     }
