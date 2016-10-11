@@ -37,7 +37,7 @@
   when: save_old
 
 - name: Ensure {{ destination }} directory exists
-  shell : mkdir -p {{ destination }} 
+  file: state=directory dest={{ destination }} 
 
 - name: "Backup previous {{ repo }}"
   shell: mv {{destination}} {{ destination }}_{{ mydate.stdout }}
@@ -52,7 +52,7 @@
 - name: Cleanup 
   file: path={{temp_directory_remote.stdout}}/{{ repo }}.tar state=absent
 
-- name: Remove temporary local direcotry with copy of repo 
+- name: Remove temporary local directory with copy of repo 
   become: no
   local_action: file path={{temp_directory_local.stdout}} state=absent
 
