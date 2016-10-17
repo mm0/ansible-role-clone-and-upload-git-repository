@@ -44,7 +44,7 @@
   when: save_old and directory.stat.exists
 
 - name: Untar repos on remote host 
-  unarchive: src={{temp_directory_remote.stdout}}/{{ repo }}.tar dest={{ destination }} owner={{ owner }} group={{ group }} mode={{ mode }} copy=no
+  unarchive: src={{temp_directory_remote.stdout}}/{{ repo }}.tar dest={{ destination }} owner={{ owner }} group={{ group }} mode={{ mode }} copy=no list_files=yes
 
 - name: Set permissions on repo since unarchive doesnt support this yet
   file: dest={{ destination }} owner={{ owner }} group={{ group }} mode={{ mode }} state=directory recurse=yes
