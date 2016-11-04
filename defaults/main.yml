@@ -4,3 +4,4 @@ group: root
 mode: 644
 organization: 
 git_site: github.com
+remove_git_config: yes
