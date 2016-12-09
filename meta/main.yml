@@ -3,12 +3,17 @@ galaxy_info:
   author: Matt Margolin
   description: An Ansible role that clones a git repository locally and uploads it to a target host in a compressed and secure manner.
   company: 
-  license: MIT
+  company:
+  license: BSD2
   min_ansible_version: 2.0
   platforms:
-  - name: All
+  - name: Ubuntu
+    versions:
+    - all
+  - name: Debian
     versions:
     - all
   galaxy_tags:
+    - system
+    - cloud
 dependencies:
-
