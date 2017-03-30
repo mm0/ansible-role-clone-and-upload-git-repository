@@ -30,15 +30,15 @@
   local_action: file path={{ temp_directory_local.stdout }}/{{ repo }}/.git state=absent
   when: remove_git_config
 
-- name: Tar em  up 
-  local_action: shell tar -cvf {{temp_directory_local.stdout}}/{{ repo }}.tar -C {{temp_directory_local.stdout}}/{{ repo }}/ .
+- name: Zip em  up
+  local_action: "archive dest={{temp_directory_local.stdout}}/{{ repo }}.zip path={{temp_directory_local.stdout}}/{{ repo }}/ format=zip"
   become: no
 
-- name: Copy github repos to remote host(s) 
-  copy: src={{temp_directory_local.stdout}}/{{ repo }}.tar dest={{temp_directory_remote.stdout}}/ 
+- name: Copy github repos to remote host(s)
+  copy: src={{temp_directory_local.stdout}}/{{ repo }}.zip dest={{temp_directory_remote.stdout}}/
 
-- name: Get todays date 
-  shell: date '+%F-%H:%M:%S' 
+- name: Get todays date
+  shell: date '+%F-%H:%M:%S'
   register: mydate
   when: save_old
 
@@ -48,23 +48,21 @@
   when: save_old
 
 - name: Ensure {{ destination }} directory exists
-  file: state=directory dest={{ destination }} 
+  file: state=directory dest={{ destination }}
 
 - name: "Backup previous {{ repo }}"
   shell: mv {{destination}} {{ destination }}_{{ mydate.stdout }}
   when: save_old and directory.stat.exists
 
-- name: Untar repos on remote host 
-  unarchive: src={{temp_directory_remote.stdout}}/{{ repo }}.tar dest={{ destination }} owner={{ owner }} group={{ group }} mode={{ mode }} copy=no list_files=yes
+- name: Unzip repos on remote host
+  unarchive: src={{temp_directory_remote.stdout}}/{{ repo }}.zip dest={{ destination }} owner={{ owner }} group={{ group }} mode={{ mode }} remote_src=yes
 
 - name: Set permissions on repo since unarchive doesnt support this yet
   file: dest={{ destination }} owner={{ owner }} group={{ group }} mode={{ mode }} state=directory recurse=yes
 
-- name: Cleanup 
-  file: path={{temp_directory_remote.stdout}}/{{ repo }}.tar state=absent
+- name: Cleanup
+  file: path={{temp_directory_remote.stdout}}/{{ repo }}.zip state=absent
 
 - name: Remove temporary local directory with copy of repo 
   become: no
   local_action: file path={{temp_directory_local.stdout}} state=absent
-
-
