@@ -1,41 +1,43 @@
+---
 - name: Generate Random Name of temp directory
-  local_action: shell mktemp -d "/tmp/clone_repo_ansible_repo.XXXXXXXXXX"
+  local_action: tempfile state=directory prefix="clone_repo_ansible_repo."
   become: no
   register: temp_directory_local
 
 - name: Generate Random Name of temp directory on remote
-  shell: mktemp -d "/tmp/clone_repo_ansible_repo.XXXXXXXXXX"
+  tempfile: state=directory prefix="clone_repo_ansible_repo."
+  become: no
   register: temp_directory_remote
 
 - name: Chmod local temp
   become: no
-  local_action: file path={{temp_directory_local.stdout}} mode=777
+  local_action: file path={{temp_directory_local.path}} mode=777
 
 - name: Chmod remote temp
-  file: path={{temp_directory_remote.stdout}} mode=777
+  file: path={{temp_directory_remote.path}} mode=777
 
 - name: "Get github repo: {{ repo }}"
   #disable become to use local user's git key
   become: no
-  local_action: git accept_hostkey=yes dest={{ temp_directory_local.stdout }}/{{ repo }} repo=ssh://git@{{git_site }}/{{ organization }}/{{ repo }}.git version="{{ version | default('HEAD') }}" depth=1
+  local_action: git accept_hostkey=yes dest={{ temp_directory_local.path}}/{{ repo }} repo=ssh://git@{{git_site }}/{{ organization }}/{{ repo }}.git version="{{ version | default('HEAD') }}" depth=1
   when: git_method == "SSH"
 
 - name: "Get github repo: {{ repo }}"
   become: no
-  local_action: git accept_hostkey=yes dest={{ temp_directory_local.stdout }}/{{ repo }} repo=https://{{git_site }}/{{ organization }}/{{ repo }}.git version="{{ version | default('HEAD') }}" depth=1
+  local_action: git accept_hostkey=yes dest={{ temp_directory_local.path }}/{{ repo }} repo=https://{{git_site }}/{{ organization }}/{{ repo }}.git version="{{ version | default('HEAD') }}" depth=1
   when: git_method == "HTTPS"
 
 - name: Remove .git directory
   become: no
-  local_action: file path={{ temp_directory_local.stdout }}/{{ repo }}/.git state=absent
+  local_action: file path={{ temp_directory_local.path }}/{{ repo }}/.git state=absent
   when: remove_git_config
 
 - name: Zip em  up
-  local_action: "archive dest={{temp_directory_local.stdout}}/{{ repo }}.zip path={{temp_directory_local.stdout}}/{{ repo }}/ format=zip"
+  local_action: "archive dest={{temp_directory_local.path}}/{{ repo }}.zip path={{temp_directory_local.path}}/{{ repo }}/ format=zip"
   become: no
 
 - name: Copy github repos to remote host(s)
-  copy: src={{temp_directory_local.stdout}}/{{ repo }}.zip dest={{temp_directory_remote.stdout}}/
+  copy: src={{temp_directory_local.path}}/{{ repo }}.zip dest={{temp_directory_remote.path}}/
 
 - name: Get todays date
   shell: date '+%F-%H:%M:%S'
@@ -51,18 +53,19 @@
   file: state=directory dest={{ destination }}
 
 - name: "Backup previous {{ repo }}"
-  shell: mv {{destination}} {{ destination }}_{{ mydate.stdout }}
+  shell: mv {{destination}} {{ destination }}_{{ mydate.stdout}}
   when: save_old and directory.stat.exists
 
 - name: Unzip repos on remote host
-  unarchive: src={{temp_directory_remote.stdout}}/{{ repo }}.zip dest={{ destination }} owner={{ owner }} group={{ group }} mode={{ mode }} remote_src=yes
+  unarchive: src={{temp_directory_remote.path}}/{{ repo }}.zip dest={{ destination }} owner={{ owner }} group={{ group }} mode={{ mode }} remote_src=yes
 
 - name: Set permissions on repo since unarchive doesnt support this yet
   file: dest={{ destination }} owner={{ owner }} group={{ group }} mode={{ mode }} state=directory recurse=yes
 
 - name: Cleanup
-  file: path={{temp_directory_remote.stdout}}/{{ repo }}.zip state=absent
+  file: path={{temp_directory_remote.path}}/{{ repo }}.zip state=absent
 
-- name: Remove temporary local directory with copy of repo 
+- name: Remove temporary local directory with copy of repo
   become: no
-  local_action: file path={{temp_directory_local.stdout}} state=absent
+  local_action: file path={{temp_directory_local.path}} state=absent
+
