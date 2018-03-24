@@ -1,4 +1,10 @@
 ---
+- name: Ensure zip present on target
+  package:
+    name: zip
+    state: present
+  become: yes
+
 - name: Generate Random Name of temp directory
   local_action: tempfile state=directory prefix="clone_repo_ansible_repo."
   become: no
