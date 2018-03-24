@@ -49,7 +49,7 @@
   register: directory
   when: save_old
 
-- name: Ensure {{ destination }} directory exists
+- name: "Ensure {{ destination }} directory exists"
   file: state=directory dest={{ destination }}
 
 - name: "Backup previous {{ repo }}"
